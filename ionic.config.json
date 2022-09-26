@@ -1,0 +1,7 @@
+{
+  "name": "holidayer",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
