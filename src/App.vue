@@ -26,8 +26,6 @@
                                 <ion-label>Profile</ion-label>
                             </ion-item>
                         </router-link>
-
-
                     </ion-menu-toggle>
                 </ion-list>
             </ion-content>
