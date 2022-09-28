@@ -44,7 +44,7 @@
 import { defineComponent } from 'vue';
 import { IonButton, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import headerTop from '@/components/headerTop.vue';
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, Unsubscribe } from "firebase/auth";
 import { signInUser, createNewUser, returnAuth, signOutUser } from '@/firebase'
 export default defineComponent({
     name: 'ProfilePage',
@@ -60,6 +60,7 @@ export default defineComponent({
     },
     data() {
         return {
+            unsubscribe: {} as Unsubscribe,
             userSignIn: false,
             form: '',
             disName: '',
@@ -70,23 +71,27 @@ export default defineComponent({
         }
     },
     mounted(){
-        const auth = returnAuth();
-        console.log(auth.currentUser)
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                this.userSignIn = true
-            } else {
-                // User is signed out
-                this.userSignIn = false
-            }
-        });
+        this.authListener()
     },
     methods: {
+        authListener(){
+            const auth = returnAuth();
+            this.unsubscribe = onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    this.userSignIn = true
+                } else {
+                    // User is signed out
+                    this.userSignIn = false
+                }
+            });
+        },
         async signIn(){
             await signInUser(this.email, this.password);
         },
         async signUp(){
             await createNewUser(this.email, this.password, this.disName);
+            const auth = returnAuth();
+            this.disName = auth.currentUser != null ? auth.currentUser.displayName ? auth.currentUser.displayName : '': '';
         },
         async signOut(){
             await signOutUser()
@@ -99,9 +104,20 @@ export default defineComponent({
             this.password = ''
             this.header = 'Account'
             this.disName = ''
+            console.log(newValue)
             if(newValue){
-                const auth = returnAuth();
-                this.disName = auth.currentUser != null ? auth.currentUser.displayName ? auth.currentUser.displayName : 'User ': 'User';
+                setTimeout(() => {
+                    const auth = returnAuth();
+                    this.disName = auth.currentUser != null ? auth.currentUser.displayName ? auth.currentUser.displayName : '': '';
+                }, 1000)
+            }
+        },
+        $route(to, from){
+            if(to.name == "Profile"){
+                this.authListener();
+            }
+            else {
+                this.unsubscribe()
             }
         }
     }

@@ -1,11 +1,11 @@
 <template>
-    <ion-app>
+    <LoadingScreen :showLoadingScreen="showLoadingScreen"/>
+    <ion-app v-if="!showLoadingScreen">
         <ion-split-pane content-id="main-content">
         <ion-menu content-id="main-content" type="overlay">
             <ion-content>
                 <ion-list id="inbox-list">
-                    <ion-list-header>{{displayName}}</ion-list-header> <!-- User Name -->
-                    <ion-note>{{userEmail}}</ion-note> <!-- Email Name -->   
+                    <ion-list-header style="border-bottom: 1px solid black;">{{displayName}}</ion-list-header> <!-- User Name -->
                     <ion-menu-toggle :auto-hide="false">
 
                         <router-link to="/Holidays">
@@ -33,6 +33,7 @@
         <ion-router-outlet id="main-content"></ion-router-outlet>
         </ion-split-pane>
     </ion-app>
+    
 </template>
 
 <script lang="ts">
@@ -41,9 +42,11 @@ import { IonApp, IonContent, IonIcon, IonItem, IonLabel, IonList, IonListHeader,
 import { airplane, list, person } from 'ionicons/icons';
 import { returnAuth } from '@/firebase'
 import { onAuthStateChanged, User } from "firebase/auth";
+import LoadingScreen from '@/components/LoadingScreen.vue'
 export default defineComponent({
     name: 'App',
     components: {
+        LoadingScreen, 
         IonApp, 
         IonContent, 
         IonIcon, 
@@ -63,35 +66,47 @@ export default defineComponent({
             list,
             person,
             displayName: "User",
-            userEmail: "me@example.com",
-            userSignIn: false
+            userSignIn: false,
+            showLoadingScreen: true
         }
     },
     mounted(){
         const auth = returnAuth();
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                this.loadUserData(user)
+                setTimeout(() =>{
+                    this.displayName = user.displayName ? user.displayName : ""
+                }, 1000)
                 this.userSignIn = true
+                this.$router.push('Holidays')
             } else {
                 // User is signed out
                 this.userSignIn = false
+                this.displayName = ""
+                this.$router.push('Profile')
             }
         });
+        setTimeout(() => {
+            this.showLoadingScreen = false
+        }, 2000)
     },
     methods: {
-        loadUserData(user: User){
-            this.displayName = user.displayName ? user.displayName : "User"
-            this.userEmail = user.email ? user.email : "me@example.com"
-        }
+
     }
 });
 </script>
 
 <style>
+p{
+    margin: 0px;
+}
 .page{
     padding: 10px;
     width: 100%;
     height: 100%;
+}
+
+a{
+    text-decoration: none
 }
 </style>

@@ -1,17 +1,9 @@
 <template>
     <ion-page>
-        <headerTop title="Holidays"></headerTop> 
+        <headerTop :title="($route.params.title as string)"></headerTop> 
         <ion-content :fullscreen="true">   
-            <div class="page" v-if="userSignIn">
-                <ion-button expand="block" @click="$router.push('HolidayCreation')">Create New Holiday</ion-button>
-                <div class="holiday_container">
-                    <div v-for="(holidayData, id) in dataBase.holidays" :key="id" class="holiday_item" :style="{backgroundImage: `url(${require(`@/images/${backgroundImages[Math.floor(Math.random() * backgroundImages.length)]}`)})`}" @click="$router.push({name: 'TripPage', params: {id: id, title: holidayData.name}})">
-                        {{holidayData.name}}
-                    </div>
-                </div>
-            </div>
-            <div class="page" v-else>
-                Head to Profile to sign in or create new account
+            <div class="page">
+                Welcome
             </div>
         </ion-content>
     </ion-page>
@@ -24,7 +16,6 @@ import headerTop from '@/components/headerTop.vue';
 import { returnAuth, returnDataBase } from '@/firebase'
 import { onAuthStateChanged, Unsubscribe } from "firebase/auth";
 import { doc, onSnapshot, DocumentData } from "firebase/firestore";
-import { MainData } from '@/types';
 export default defineComponent({
     name: 'HolidaysPage',
     components: {
@@ -35,40 +26,23 @@ export default defineComponent({
     },
     data(){
         return {
-            dataBase: {} as DocumentData as MainData,
-            userSignIn: false,
-            unsubscribe: {} as Unsubscribe,
+            dataBase: {} as DocumentData,
             unsub: {} as Unsubscribe,
-            backgroundImages: ['holiday_one.webp', 'holiday_two.webp', 'holiday_three.webp', 'holiday_four.webp', 'holiday_five.webp', 'holiday_six.webp', 'holiday_seven.webp', 'holiday_eight.webp']
+            backgroundImages: ['holiday_one.webp', 'holiday_two.webp', 'holiday_three.webp', 'holiday_four.webp', 'holiday_five.webp', 'holiday_six.webp', 'holiday_seven.webp', 'holiday_eight.webp'],
         }
     },
     mounted(){
-        this.authListener()
         this.watchDataBase()
-        console.log(this.dataBase)
+        console.log("hi0")
     },
     methods: {
-        authListener(){
-            const auth = returnAuth()
-            this.unsubscribe = onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    this.userSignIn = true
-                } else {
-                    // User is signed out
-                    this.userSignIn = false
-                    this.$router.push('Profile')
-                }
-            });
-        },
         watchDataBase(){
             const db = returnDataBase()
             const auth = returnAuth()
             if(auth.currentUser != null){
                 const uid = auth.currentUser.uid
                 this.unsub = onSnapshot(doc(db, "data", uid), (doc) => {
-                    // @ts-expect-error: don't want to do holidays holidays thing
                     this.dataBase = doc.data()?? {}
-                    console.log(this.dataBase)
                     console.log("Current data: ", doc.data());
                 });
             }
@@ -76,12 +50,10 @@ export default defineComponent({
     },
     watch: {
         $route(to, from){
-            if(to.name == "Holidays"){
-                this.authListener()
+            if(to.name == "TripPage"){
                 this.watchDataBase()
             }
             else {
-                this.unsubscribe()
                 this.unsub()
             }
         }
