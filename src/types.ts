@@ -4,22 +4,34 @@ export interface MainData {
 
 export interface HolidayLayout {
     [key: string]: { // ID
-            name: string,
-            startDate: string,
-            colour: string,
-            duration: number,
+            attractions: {
+                [key: string]: { // ID
+                    name: string,
+                    cost: number,
+                    place: string
+                }
+            }
             budget: {
                 [key: string]: {
                     amount: number,
                     alreadyUsed: number
                 }
             },
-            itinerary: {
+            duration: number,
+            info: {
+                [key: string]: { // ID
+                    name: string,
+                    info: string
+                }
+            },
+            name: string,
+            schedule: {
                 [key: string]: { // ID
                     name: string,
                     startTime: string,
                     endTime: string
                 }
-            }
+            },
+            startDate: string
         }
 }
