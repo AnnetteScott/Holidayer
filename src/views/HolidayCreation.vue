@@ -15,11 +15,6 @@
                             <label>Start Date: </label>
                             <input required type="date" v-model="holidayDate">
                         </div>
-                        <!-- Colour -->
-                        <div class="item">
-                            <label>Colour: </label>
-                            <input type="color" id="head" name="head" style="width: 20%;" v-model="holidayColour">
-                        </div>
                         <div class="item">
                             <label>Days: </label>
                             <input required type="number" v-model="holidayDuration" style="width:10ch">
@@ -71,7 +66,6 @@ export default defineComponent({
         return {
             holidayName: '',
 			holidayDate: '',
-			holidayColour: '#0062FF',
 			holidayBudgetName: [],
 			holidayBudgetAmount: [],
 			holidayDuration: 0,
@@ -86,12 +80,14 @@ export default defineComponent({
             const hoidayID = this.generateID() as string
             let data = {} as HolidayLayout
 			data[hoidayID] = {
-				name: this.holidayName, 
-				startDate: this.holidayDate, 
-				colour: this.holidayColour, 
+				attractions: {},
+				budget: {},
+				info: {},
 				duration: this.holidayDuration, 
-				budget: {}, 
-				itinerary: {}
+				name: this.holidayName, 
+				schedule: {},
+				startDate: this.holidayDate
+
 			}
 			if(this.AmountOfBudget > 0){
 				for(let num = 0; num < this.AmountOfBudget; num++){
@@ -104,7 +100,6 @@ export default defineComponent({
             await addHolidayToDB(data)
 			this.holidayBudgetAmount = []
 			this.holidayBudgetName = []
-			this.holidayColour = '#0062FF'
 			this.holidayDate = ''
 			this.holidayDuration = 0
 			this.holidayName = ''
