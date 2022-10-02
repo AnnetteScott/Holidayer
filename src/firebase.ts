@@ -3,7 +3,7 @@ import { HolidayLayout } from '@/types'
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, signOut, User } from "firebase/auth";
-import { getFirestore, doc, setDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, setDoc, updateDoc } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBFxqrFmRqBvQgfm0TK97m4bPsFGh5z1YY",
@@ -91,3 +91,18 @@ export async function addHolidayToDB(data: HolidayLayout) {
         console.log(error)
     }
 }
+
+export async function applyBudgetItem(holID: string, budgetName: string, amount: number, alreadyUsed: number) {
+    try {
+        if(auth.currentUser != null){
+            const uid = auth.currentUser.uid
+            const Ref = await doc(db, "data", `${uid}`, );
+            await updateDoc(Ref, {
+                [`holidays.${holID}.budget.${budgetName}`]: {'amount': amount, 'alreadyUsed': alreadyUsed}
+            })
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
