@@ -4,16 +4,17 @@
 		<ion-content :fullscreen="true">   
 			<div class="page">
 				<div class="inner">
-					<p style="text-align: center;font-size: 0.9rem; margin-bottom: 5px;">Days until the holiday begins: {{daysTill}}</p>
+					<p class="centerp" style="margin-bottom: 5px;">Days until the holiday begins: {{daysTill}}</p>
                     <!-- BUDGET -->
 					<div class="inner" style="overflow: hidden;" v-if="tab == 'Budget'">
-                        <p style="text-align: center;font-size: 0.9rem; margin-bottom: 5px;">Total Budget: ${{budgetTotal}} &nbsp;&nbsp;&nbsp; Amount Left: ${{budgetLeft}}</p>
+                        <p class="centerp" style="margin-bottom: 5px;">Total Budget: ${{budgetTotal}} &nbsp;&nbsp;&nbsp; Amount Left: ${{budgetLeft}}</p>
 						<ion-button expand="block" @click="popup = 'Budget_Creation'">Create New Budget Item</ion-button>
+
 						<div class="item_container">
 							<template v-if="holID != ''">
-								<div class="budget_items" v-for="name in budgetNames" :key="name" @click="editBudget(name)">
-									<p style="text-align: center; font-family: 'Bungee Spice', sans-serif;">{{name}}</p>
-									<p style="font-size: 1rem;text-align: center;">Left: ${{budgetInfo[name].amount - budgetInfo[name].alreadyUsed}}</p>
+								<div class="trip_items_card" v-for="name in budgetNames" :key="name" @click="editBudget(name)">
+									<p class="centerp titlefont">{{name}}</p>
+									<p class="centerp" style="font-size: 1rem;">Left: ${{budgetInfo[name].amount - budgetInfo[name].alreadyUsed}}</p>
 									<div class="budget_amount"> 
 										<div class="budget_amount_bar" :style="{'width': `${(budgetInfo[name].alreadyUsed / budgetInfo[name].amount * 100) >= 100 ? '100%': (budgetInfo[name].alreadyUsed / budgetInfo[name].amount * 100).toFixed(0)}%`}">
 											Used: ${{budgetInfo[name].alreadyUsed}}
@@ -36,10 +37,15 @@
                     
                     <!-- ATTRACTIONS -->
 					<div class="inner" style="overflow: hidden;" v-if="tab == 'Attractions'">
+                        <p class="centerp" style="margin-bottom: 5px;">Total Cost: ${{attractionTotal}}</p>
 						<ion-button expand="block" @click="popup = 'Attraction_Creation'">Create New Attraction</ion-button>
 						<div class="item_container">
 							<template v-if="holID != ''">
-								
+								<div class="trip_items_card"  v-for="(info, id) in dataBase.holidays[holID].attractions" :key="id" @click="''">
+                                    <p class="centerp titlefont">{{info.name}}</p>
+                                    <p class="centerp">Cost: ${{info.cost}}</p>
+                                    <p class="centerp">Address: {{info.place}}</p>
+                                </div>
 							</template>
 						</div>
 					</div>
@@ -85,9 +91,9 @@
                             <input v-model="attractionCreationName">
                             <label>Amount: $</label>
                             <input v-model="attractionCreationCost" type="number">
-                            <label>Place: </label>
+                            <label>Address: </label>
                             <input v-model="attractionCreationPlace">
-                            <ion-button @click="''">Create</ion-button>
+                            <ion-button @click="applyAttraction()">Create</ion-button>
                             <ion-button @click="clear()">Back</ion-button>
                         </div>
                     </div>
@@ -109,7 +115,7 @@
 import { defineComponent } from 'vue';
 import { IonContent, IonPage, IonButton } from '@ionic/vue';
 import headerTop from '@/components/headerTop.vue';
-import { returnAuth, returnDataBase, applyBudgetItem } from '@/firebase'
+import { returnAuth, returnDataBase, applyBudgetItem, applyAttractionsItem } from '@/firebase'
 import { Unsubscribe } from "firebase/auth";
 import { doc, onSnapshot, DocumentData } from "firebase/firestore";
 import { MainData } from '@/types'
@@ -141,7 +147,8 @@ export default defineComponent({
 			budgetCreationUsed: 0,
             attractionCreationName: '',
             attractionCreationCost: 0,
-            attractionCreationPlace: ''
+            attractionCreationPlace: '',
+            attractionTotal: 0
 		}
 	},
 	mounted(){
@@ -161,6 +168,7 @@ export default defineComponent({
 					console.log("Current data: ", doc.data());
 					this.getDays()
 					this.showBudgetTotal()
+					this.showAttractionTotal()
                     this.budgetNames = Object.keys(this.dataBase.holidays[this.holID].budget).sort()
                     this.budgetInfo = this.dataBase.holidays[this.holID].budget
 				});
@@ -186,11 +194,18 @@ export default defineComponent({
             await applyBudgetItem(this.holID, this.budgetCreationName, this.budgetCreationAmount, this.budgetCreationUsed)
             this.clear()
         },
+        async applyAttraction(){
+            await applyAttractionsItem(this.holID, this.attractionCreationName, this.attractionCreationCost, this.attractionCreationPlace)
+            this.clear()
+        },
         clear(){
             this.popup = ''
             this.budgetCreationName = ''
             this.budgetCreationAmount = 0
             this.budgetCreationUsed = 0
+            this.attractionCreationName = ''
+            this.attractionCreationCost = 0
+            this.attractionCreationPlace = ''
         },
         showBudgetTotal(){
             this.budgetTotal = 0
@@ -200,6 +215,12 @@ export default defineComponent({
                 this.budgetLeft += info.amount - info.alreadyUsed
             }
         },
+        showAttractionTotal(){
+            this.attractionTotal = 0
+            for(const[id, info] of Object.entries(this.dataBase.holidays[this.holID].attractions)){
+                this.attractionTotal += info.cost
+            }
+        }
 
 	},
 	watch: {
@@ -220,6 +241,14 @@ export default defineComponent({
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Bungee+Spice&display=swap');
+.centerp{
+    text-align: center;
+    font-size: 0.9rem;
+}
+.titlefont{
+    font-family: 'Bungee Spice', sans-serif;
+    font-size: 1.2rem;
+}
 .tabs{
 	right: 0px;
 	left: 0px;
@@ -254,14 +283,15 @@ export default defineComponent({
 	overflow: auto;
 }
 
-.budget_items{
+.trip_items_card{
 	padding: 5px 5px;
 	border-radius: 10px;
 	box-shadow: 0 5px 10px #00000026, 0 6px 6px #0000000c;
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 5px;
 	border: 1px solid cornflowerblue;
+    height: 90px;
 }
 
 .budget_amount{
