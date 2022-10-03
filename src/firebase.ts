@@ -106,3 +106,31 @@ export async function applyBudgetItem(holID: string, budgetName: string, amount:
     }
 }
 
+export async function applyAttractionsItem(holID: string, attrName: string, amount: number, place: string) {
+    try {
+        if(auth.currentUser != null){
+            const uid = auth.currentUser.uid
+            const Ref = await doc(db, "data", `${uid}`, );
+            const id = generateID()
+            await updateDoc(Ref, {
+                [`holidays.${holID}.attractions.${id}`]: {name: attrName, cost: amount, place: place}
+            })
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+function generateID(){
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const length = 8
+    let result = '' as string;
+    //Generate an ID.
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+        if(i >= 120){
+            return
+        }
+    }
+    return result;
+}
