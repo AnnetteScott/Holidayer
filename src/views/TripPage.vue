@@ -7,7 +7,8 @@
 					<p class="centerp" style="margin-bottom: 5px;">Days until the holiday begins: {{daysTill}}</p>
                     <!-- BUDGET -->
 					<div class="inner" style="overflow: hidden;" v-if="tab == 'Budget'">
-                        <p class="centerp" style="margin-bottom: 5px;">Total Budget: ${{budgetTotal}} &nbsp;&nbsp;&nbsp; Amount Left: ${{budgetLeft}}</p>
+                        <p class="centerp" style="margin-bottom: 5px;">Total Budget: ${{budgetTotal}} &nbsp;&nbsp;&nbsp; 
+                            <span :style="`${budgetLeft >= 0 ? 'color: #03D400;': 'color: red;'}`">Amount Left: ${{budgetLeft}}</span></p>
 						<ion-button expand="block" @click="popup = 'Budget_Creation'">Create New Budget Item</ion-button>
 
 						<div class="item_container">
@@ -60,7 +61,7 @@
 						</div>
 					</div>
 
-
+                    <!-- BUDGET -->
                     <div class="trip_item_creation" v-if="popup == 'Budget_Creation'">
                         <div>
                             <label>Name: </label>
@@ -85,6 +86,7 @@
                         </div>
                     </div>
                     
+                    <!-- ATTRACTION -->
                     <div class="trip_item_creation" v-if="popup == 'Attraction_Creation'">
                         <div>
                             <label>Name:</label>
@@ -161,9 +163,11 @@ export default defineComponent({
 			const auth = returnAuth()
 			if(auth.currentUser != null){
 				const uid = auth.currentUser.uid
+                console.log(uid)
 				this.unsub = onSnapshot(doc(db, "data", uid), (doc) => {
 					// @ts-expect-error: don't want to do holidays holidays thing
 					this.dataBase = doc.data()?? {}
+                    console.log(this.$route.params)
 					this.holID = this.$route.params.id as string
 					console.log("Current data: ", doc.data());
 					this.getDays()
@@ -253,7 +257,7 @@ export default defineComponent({
 	right: 0px;
 	left: 0px;
 	position: absolute;
-	bottom: 0px;
+	bottom: 60px;
 	height: 50px;
 	display: flex;
 	box-shadow: 0px 0px 7px -3px #000;

@@ -72,9 +72,6 @@ export default defineComponent({
 			AmountOfBudget: 0,
         }
     },
-    mounted(){
-
-    },
     methods: {
         async addHoliday(){
             const hoidayID = this.generateID() as string

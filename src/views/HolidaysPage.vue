@@ -44,7 +44,6 @@ export default defineComponent({
     },
     mounted(){
         this.authListener()
-        this.watchDataBase()
         console.log(this.dataBase)
     },
     methods: {
@@ -53,6 +52,7 @@ export default defineComponent({
             this.unsubscribe = onAuthStateChanged(auth, (user) => {
                 if (user) {
                     this.userSignIn = true
+                    this.watchDataBase()
                 } else {
                     // User is signed out
                     this.userSignIn = false

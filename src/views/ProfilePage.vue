@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { IonButton, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonButton, IonContent, IonPage, IonToolbar } from '@ionic/vue';
 import headerTop from '@/components/headerTop.vue';
 import { onAuthStateChanged, Unsubscribe } from "firebase/auth";
 import { signInUser, createNewUser, returnAuth, signOutUser } from '@/firebase'
@@ -52,11 +52,7 @@ export default defineComponent({
         headerTop,
         IonButton,
         IonContent,
-        IonHeader,
-        IonMenuButton,
-        IonPage,
-        IonTitle,
-        IonToolbar
+        IonPage
     },
     data() {
         return {
