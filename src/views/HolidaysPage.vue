@@ -68,7 +68,6 @@ export default defineComponent({
                 this.unsub = onSnapshot(doc(db, "data", uid), (doc) => {
                     // @ts-expect-error: don't want to do holidays holidays thing
                     this.dataBase = doc.data()?? {}
-                    console.log(this.dataBase)
                     console.log("Current data: ", doc.data());
                 });
             }
@@ -107,5 +106,6 @@ export default defineComponent({
     font-size: 2.5rem;
     font-family: 'Bungee Spice', sans-serif;
     border: 1px solid #000000d3;
+    cursor: pointer;
 }
 </style>

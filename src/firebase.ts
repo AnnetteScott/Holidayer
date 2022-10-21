@@ -106,6 +106,21 @@ export async function applyBudgetItem(holID: string, budgetName: string, amount:
     }
 }
 
+export async function applyScheduleItem(holID: string, name: string, startTime: string, endTime: string, address: string, id: string | undefined) {
+    try {
+        if(auth.currentUser != null){
+            const uid = auth.currentUser.uid
+            const Ref = await doc(db, "data", `${uid}`, );
+            const ids = id?? generateID()
+            await updateDoc(Ref, {
+                [`holidays.${holID}.schedule.${ids}`]: {'name': name, 'startTime': startTime, 'endTime': endTime, 'address': address}
+            })
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export async function applyAttractionsItem(holID: string, attrName: string, amount: number, place: string) {
     try {
         if(auth.currentUser != null){
@@ -120,6 +135,10 @@ export async function applyAttractionsItem(holID: string, attrName: string, amou
         console.log(error)
     }
 }
+
+
+
+
 
 function generateID(){
     const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';

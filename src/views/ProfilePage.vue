@@ -100,7 +100,6 @@ export default defineComponent({
             this.password = ''
             this.header = 'Account'
             this.disName = ''
-            console.log(newValue)
             if(newValue){
                 setTimeout(() => {
                     const auth = returnAuth();
